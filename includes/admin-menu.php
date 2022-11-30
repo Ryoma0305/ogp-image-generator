@@ -2,30 +2,41 @@
 // ---------------------------------------
 // 設定画面
 // ---------------------------------------
-// function msk_show_config()
+// function show_config()
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
 wp_enqueue_media();
+//$_POST['showtext_options'])があったら保存
+if( isset($_POST['original_image']) ){
+    check_admin_referer('ogp_config');
+    update_option(self::PLUGIN_FONT_URL, $_POST['ogp_font_url']);
+    update_option(self::PLUGIN_ORIGINAL_IMAGE, $_POST['original_image']);
+    }
 ?>
 
 <div class="wrap">
     <div id="icon-options-general" class="icon32"><br /></div><h2>OPG自動生成 設定</h2>
         <form action="" method="post">
+<?php
+wp_nonce_field('ogp_config');
+$ogp_font_url =     get_option(self::PLUGIN_FONT_URL, null);
+$original_image =    get_option(self::PLUGIN_ORIGINAL_IMAGE, null);
+?>
             <table class="form-table">
                 <tr valign="top">
-                    <th scope="row"><label for="inputtext">使用するフォント<br>（CSS3 Web Font推奨）</label></th>
+                    <th scope="row"><label for="inputtext">使用するフォント</label></th>
                     <td>
                         <input type="button" name="ogp_font_url_slect" value="選択" /><br>
-                        <input name="ogp_font_url" type="text" value="" style="width:60%" readonly="readonly"/>
+                        <input name="ogp_font_url" type="text" value="<?php  echo $ogp_font_url ?>" style="width:60%" readonly="readonly"/>
                     </td>
                 </tr>
                 <tr valign="top">
                     <th scope="row"><label for="inputtext">テンプレート画像</label></th>
                     <td>
                         <input type="button" name="ogp_image_url_slect" value="選択" /><br>
-                        <input name="ogp_image_ids" type="hidden" value="" readonly="readonly"/>
+                        <input name="original_image" type="hidden" value="<?php  echo $original_image ?>" readonly="readonly"/>
                         <div id="ogp_image_url_thumbnail" class="uploded-thumbnail">
                         </div>
                     </td>
@@ -35,7 +46,7 @@ wp_enqueue_media();
         </form>
     </div>
 </div>
-<!-- <script type="text/javascript">
+<script type="text/javascript">
 (function ($) {
     var image_uploader;
     var font_uploader;
@@ -112,7 +123,7 @@ wp_enqueue_media();
         font_uploader.open();
     });
 })(jQuery);
-</script> -->
+</script>
 <style type="text/css">
     .box {
         position: relative;
