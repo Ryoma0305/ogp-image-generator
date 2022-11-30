@@ -17,7 +17,7 @@ if( isset($_POST['original_image']) ){
 ?>
 
 <div class="wrap">
-    <div id="icon-options-general" class="icon32"><br /></div><h2>OPG自動生成 設定</h2>
+    <div id="icon-options-general"><br /></div><h2>OPG自動生成 設定</h2>
         <form action="" method="post">
 <?php
 wp_nonce_field('ogp_config');
@@ -37,7 +37,7 @@ $original_image =    get_option(self::PLUGIN_ORIGINAL_IMAGE, null);
                     <td>
                         <input type="button" name="ogp_image_url_slect" value="選択" /><br>
                         <input name="original_image" type="hidden" value="<?php  echo $original_image ?>" readonly="readonly"/>
-                        <div id="ogp_image_url_thumbnail" class="uploded-thumbnail">
+                        <div id="ogp_image_url_thumbnail">
                         </div>
                     </td>
                 </tr>
