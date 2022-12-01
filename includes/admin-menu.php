@@ -23,21 +23,35 @@ if( isset($_POST['original_image']) ){
 wp_nonce_field('ogp_config');
 $ogp_font_url =     get_option(self::PLUGIN_FONT_URL, null);
 $original_image =    get_option(self::PLUGIN_ORIGINAL_IMAGE, null);
+$ogp_image_urls = [];
+$titles = [];
+$ids = explode(',', $original_image);
+foreach($ids as $id){
+    $image = wp_get_attachment_image_src($id, 'full');
+    if( $image !==  false ){
+        $ogp_image_urls[] = $image[0];
+        $post = get_post($id);
+        $titles[] = $post->post_title;
+    }
+}
 ?>
             <table class="form-table">
                 <tr valign="top">
                     <th scope="row"><label for="inputtext">使用するフォント</label></th>
                     <td>
                         <input type="button" name="ogp_font_url_slect" value="選択" /><br>
-                        <input name="ogp_font_url" type="text" value="<?php  echo $ogp_font_url ?>" style="width:60%" readonly="readonly"/>
+                        <input name="ogp_font_url" type="text" value="<?php echo $ogp_font_url ?>" style="width:60%" readonly="readonly"/>
                     </td>
                 </tr>
                 <tr valign="top">
                     <th scope="row"><label for="inputtext">テンプレート画像</label></th>
                     <td>
                         <input type="button" name="ogp_image_url_slect" value="選択" /><br>
-                        <input name="original_image" type="hidden" value="<?php  echo $original_image ?>" readonly="readonly"/>
-                        <div id="ogp_image_url_thumbnail">
+                        <input name="original_image" type="hidden" value="<?php echo $original_image ?>" readonly="readonly"/>
+                        <div id="ogp_image_url_thumbnail" class="uploded-thumbnail">
+<?php foreach ($ogp_image_urls as $key => $url): ?>
+                            <div class="box"><img src="<?php echo $url; ?>" alt="<?php echo $titles[$key]; ?>" style="height:128px;"/><p><?php echo $titles[$key]; ?></p></div>
+<?php endforeach ?>
                         </div>
                     </td>
                 </tr>
@@ -70,7 +84,7 @@ $original_image =    get_option(self::PLUGIN_ORIGINAL_IMAGE, null);
         });
         image_uploader.on("select", function() {
             /* テキストフォームと表示されたサムネイル画像があればクリア */
-            $("input:hidden[name=ogp_image_ids]").val("");
+            $("input:hidden[name=original_image]").val("");
             $("#ogp_image_url_thumbnail").empty();
 
             /* file の中に選択された画像の各種情報が入っている */
@@ -82,9 +96,9 @@ $original_image =    get_option(self::PLUGIN_ORIGINAL_IMAGE, null);
                 var url = file.attributes.sizes.thumbnail.url;
 
                 /* テキストフォームに画像の URL を表示 */
-                var idTmp = $("input:hidden[name=ogp_image_ids]").val();
+                var idTmp = $("input:hidden[name=original_image]").val();
                 if( idTmp != "" ) idTmp += ',';
-                $("input:hidden[name=ogp_image_ids]").val(idTmp+id);
+                $("input:hidden[name=original_image]").val(idTmp+id);
                 /* プレビュー用に選択されたサムネイル画像を表示 */
                 $("#ogp_image_url_thumbnail").append('<div class="box"><img src="'+url+'" alt="'+title+'"style="height:128px;"/><p>'+title+'</p><div>');
             });
