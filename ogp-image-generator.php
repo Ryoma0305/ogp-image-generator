@@ -5,7 +5,7 @@ Description: OG画像自動生成プラグイン
 Version: 1.0
 */
 
-// if ( ! defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 define('ALLOW_UNFILTERED_UPLOADS', true);
 add_action('init', 'OgpImageGenerator::init');
@@ -16,6 +16,8 @@ class OgpImageGenerator
     const PLUGIN_ID         = 'ogp-image-generator';
     const PLUGIN_MENU_SLUG      = self::PLUGIN_ID;
     const PLUGIN_FONT_URL       = 'ogp_font_url';
+    const PLUGIN_FONT_SIZE       = 'ogp_font_size';
+    const PLUGIN_FONT_COLOR       = 'ogp_font_color';
     const PLUGIN_ORIGINAL_IMAGE = 'original_image';
 
     static function init()
@@ -108,12 +110,23 @@ function mb_wordwrap( $string, $width = 35, $break = PHP_EOL ) {
 }
 
 function savepost_ogimage($post_ID) {
-  $file_path =  __DIR__ . '/test.log';
-  $data = $ogp_font_url;
-  file_put_contents($file_path, print_r($data, true));
+  $ogp_font_url =     get_option('ogp_font_url', null);
+  $ogp_font_size =     get_option('ogp_font_size', null);
+  $ogp_font_color =     get_option('ogp_font_color', null);
+  $original_image_id =    get_option('original_image', null);
+  $original_images = wp_get_attachment_image_src($original_image_id, 'full');
+  $original_image = $original_images[0];
 
-  $url = plugin_dir_url( __FILE__ ) . '/includes/generate.php?post_id=' . $post_ID;
+  $url = plugin_dir_url( __FILE__ ) . 'includes/generate.php?post_id=' . $post_ID . '&font_url=' . $ogp_font_url . '&original_image=' . $original_image . '&font_size=' . $ogp_font_size . '&font_color=' . $ogp_font_color;
+
+  //　検証start
+  $file_path =  __DIR__ . '/test.log';
+  $data = $url;
+  file_put_contents($file_path, print_r($data, true));
+  //　検証end
+
   file_get_contents($url);
+
 }
 add_action('save_post', 'savepost_ogimage');
 

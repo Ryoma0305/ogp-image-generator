@@ -9,9 +9,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 wp_enqueue_media();
 //$_POST['showtext_options'])があったら保存
-if( isset($_POST['original_image']) ){
+if( isset($_POST['original_image']) && isset($_POST['ogp_font_url']) && isset($_POST['ogp_font_size']) && isset($_POST['original_image'])){
     check_admin_referer('ogp_config');
     update_option(self::PLUGIN_FONT_URL, $_POST['ogp_font_url']);
+    update_option(self::PLUGIN_FONT_SIZE, $_POST['ogp_font_size']);
+    update_option(self::PLUGIN_FONT_COLOR, $_POST['ogp_font_color']);
     update_option(self::PLUGIN_ORIGINAL_IMAGE, $_POST['original_image']);
     }
 ?>
@@ -22,6 +24,8 @@ if( isset($_POST['original_image']) ){
 <?php
 wp_nonce_field('ogp_config');
 $ogp_font_url =     get_option(self::PLUGIN_FONT_URL, null);
+$ogp_font_size =     get_option(self::PLUGIN_FONT_SIZE, null);
+$ogp_font_color =     get_option(self::PLUGIN_FONT_COLOR, '#000');
 $original_image =    get_option(self::PLUGIN_ORIGINAL_IMAGE, null);
 $ogp_image_urls = [];
 $titles = [];
@@ -42,6 +46,14 @@ foreach($ids as $id){
                         <input type="button" name="ogp_font_url_slect" value="選択" /><br>
                         <input name="ogp_font_url" type="text" value="<?php echo $ogp_font_url ?>" style="width:60%" readonly="readonly"/>
                     </td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row"><label for="inputtext">フォントサイズ</label></th>
+                    <td><input name="ogp_font_size" type="text" id="ogp_font_size" value="<?php  echo $ogp_font_size ?>" class="regular-text" /></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row"><label for="inputtext">フォントカラー</label></th>
+                    <td><input name="ogp_font_color" type="color" id="ogp_font_color" value="<?php  echo $ogp_font_color ?>" class="regular-text" /></td>
                 </tr>
                 <tr valign="top">
                     <th scope="row"><label for="inputtext">テンプレート画像</label></th>
