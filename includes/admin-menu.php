@@ -14,6 +14,7 @@ if( isset($_POST['original_image']) && isset($_POST['ogp_font_url']) && isset($_
     update_option(self::PLUGIN_FONT_URL, $_POST['ogp_font_url']);
     update_option(self::PLUGIN_FONT_SIZE, $_POST['ogp_font_size']);
     update_option(self::PLUGIN_FONT_COLOR, $_POST['ogp_font_color']);
+    update_option(self::PLUGIN_NEWLINE_CHAR_LENGTH, $_POST['ogp_new_line_char_length']);
     update_option(self::PLUGIN_ORIGINAL_IMAGE, $_POST['original_image']);
     }
 ?>
@@ -26,6 +27,8 @@ wp_nonce_field('ogp_config');
 $ogp_font_url =     get_option(self::PLUGIN_FONT_URL, null);
 $ogp_font_size =     get_option(self::PLUGIN_FONT_SIZE, null);
 $ogp_font_color =     get_option(self::PLUGIN_FONT_COLOR, '#000');
+$ogp_new_line_char_length = get_option(self::PLUGIN_NEWLINE_CHAR_LENGTH, null);
+
 $original_image =    get_option(self::PLUGIN_ORIGINAL_IMAGE, null);
 $ogp_image_urls = [];
 $titles = [];
@@ -38,33 +41,48 @@ foreach($ids as $id){
         $titles[] = $post->post_title;
     }
 }
+
+$file = __FILE__;
+$file_path = strstr(__FILE__, 'includes', true);
+$file_path_to_img = $file_path . 'img/';
 ?>
+            <p>記事が保存されると、記事タイトルが入ったOG画像が下記画像保存先に自動で生成されます。</p>
             <table class="form-table">
                 <tr valign="top">
                     <th scope="row"><label for="inputtext">使用するフォント</label></th>
                     <td>
                         <input type="button" name="ogp_font_url_slect" value="選択" /><br>
-                        <input name="ogp_font_url" type="text" value="<?php echo $ogp_font_url ?>" style="width:60%" readonly="readonly"/>
+                        <input name="ogp_font_url" type="text" value="<?php echo $ogp_font_url ?>" style="width:60%" readonly="readonly" required/>
                     </td>
                 </tr>
                 <tr valign="top">
                     <th scope="row"><label for="inputtext">フォントサイズ</label></th>
-                    <td><input name="ogp_font_size" type="text" id="ogp_font_size" value="<?php  echo $ogp_font_size ?>" class="regular-text" /></td>
+                    <td><input name="ogp_font_size" type="text" id="ogp_font_size" value="<?php  echo $ogp_font_size ?>" class="regular-text" required/></td>
                 </tr>
                 <tr valign="top">
                     <th scope="row"><label for="inputtext">フォントカラー</label></th>
-                    <td><input name="ogp_font_color" type="color" id="ogp_font_color" value="<?php  echo $ogp_font_color ?>" class="regular-text" /></td>
+                    <td><input class="input_ogp_font_color" name="ogp_font_color" type="color" id="ogp_font_color" value="<?php  echo $ogp_font_color ?>" class="regular-text" required/></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row"><label for="inputtext">改行される文字数</label></th>
+                    <td><input name="ogp_new_line_char_length" type="text" id="ogp_new_line_char_length" value="<?php  echo $ogp_new_line_char_length ?>" class="regular-text" required/></td>
                 </tr>
                 <tr valign="top">
                     <th scope="row"><label for="inputtext">テンプレート画像</label></th>
                     <td>
                         <input type="button" name="ogp_image_url_slect" value="選択" /><br>
-                        <input name="original_image" type="hidden" value="<?php echo $original_image ?>" readonly="readonly"/>
+                        <input name="original_image" type="hidden" value="<?php echo $original_image ?>" readonly="readonly" required/>
                         <div id="ogp_image_url_thumbnail" class="uploded-thumbnail">
 <?php foreach ($ogp_image_urls as $key => $url): ?>
                             <div class="box"><img src="<?php echo $url; ?>" alt="<?php echo $titles[$key]; ?>" style="height:128px;"/><p><?php echo $titles[$key]; ?></p></div>
 <?php endforeach ?>
                         </div>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row"><label for="inputtext">画像保存場所</label></th>
+                    <td>
+                        <strong><?php echo $file_path_to_img; ?></strong><br>
                     </td>
                 </tr>
             </table>
@@ -163,6 +181,9 @@ foreach($ids as $id){
         padding: 10px;
         background-color: #000;
         color: #fff;
+    }
+    .input_ogp_font_color{
+        width: 40px;
     }
 </style>
 
