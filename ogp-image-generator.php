@@ -53,6 +53,7 @@ class OgpImageGenerator
             add_action('admin_menu',        [$this, 'set_ogp_menu']);
             add_filter('upload_mimes',      [$this, 'add_upload_mimes']);
             // add_action('save_post',         [$this, 'savepost_ogimage']);
+            // add_action('save_post', 'savepost_ogimage');
         }
 
         if (function_exists('register_uninstall_hook'))
