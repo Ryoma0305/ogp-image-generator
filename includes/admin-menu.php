@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 wp_enqueue_media();
-//$_POST['showtext_options'])があったら保存
+
 if( isset($_POST['original_image']) && isset($_POST['ogp_font_url']) && isset($_POST['ogp_font_size']) && isset($_POST['original_image'])){
     check_admin_referer('ogp_config');
     update_option(self::PLUGIN_FONT_URL, $_POST['ogp_font_url']);
@@ -125,7 +125,6 @@ $file_path_to_img = $file_path . 'img/';
         }
         image_uploader = wp.media({
             title: "画像を選択してください",
-            /* ライブラリの一覧は画像のみにする */
             library: {
                 type: "image",
                 author: userSettings.uid
@@ -136,23 +135,19 @@ $file_path_to_img = $file_path . 'img/';
             multiple: true
         });
         image_uploader.on("select", function() {
-            /* テキストフォームと表示されたサムネイル画像があればクリア */
+
             $("input:hidden[name=original_image]").val("");
             $("#ogp_image_url_thumbnail").empty();
 
-            /* file の中に選択された画像の各種情報が入っている */
             var images = image_uploader.state().get("selection");
             images.each(function(file){
-                //console.log(file.attributes);
                 var id = file.attributes.id;
                 var title = file.attributes.title;
                 var url = file.attributes.sizes.thumbnail.url;
 
-                /* テキストフォームに画像の URL を表示 */
                 var idTmp = $("input:hidden[name=original_image]").val();
                 if( idTmp != "" ) idTmp += ',';
                 $("input:hidden[name=original_image]").val(idTmp+id);
-                /* プレビュー用に選択されたサムネイル画像を表示 */
                 $("#ogp_image_url_thumbnail").append('<div class="box"><img src="'+url+'" alt="'+title+'"style="height:128px;"/><p>'+title+'</p><div>');
             });
         });
@@ -166,7 +161,6 @@ $file_path_to_img = $file_path . 'img/';
         }
         font_uploader = wp.media({
             title: "フォントを選択してください",
-            /* ライブラリの一覧はフォントのみにする */
             library: {
                 search: "otf ttf",
                 author: userSettings.uid
@@ -174,14 +168,12 @@ $file_path_to_img = $file_path . 'img/';
             button: {
                 text: "フォントの選択"
             },
-            /* 選択できる画像は 1 つだけにする */
             multiple: false
         });
         font_uploader.on("select", function() {
             $("input:text[name=ogp_font_url]").val("");
 
             var fonts = font_uploader.state().get("selection");
-            /* file の中に選択された画像の各種情報が入っている */
             fonts.each(function(file){
                 var path = file.attributes.url;
                 $("input:text[name=ogp_font_url]").val(path);

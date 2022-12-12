@@ -2,13 +2,7 @@
 // if ( ! defined( 'ABSPATH' ) ) {
 // 	exit; // Exit if accessed directly
 // }
-
 require_once("../../../../wp-load.php");
-
-$file_path =  __DIR__ . '/test1.log';
-$data = array('1' => 'A',);
-file_put_contents($file_path, print_r($data, true));
-
 
 $font_size = $_GET['font_size']; // 文字サイズ
 $file_path = __FILE__;
@@ -41,13 +35,7 @@ $code_green = hexdec(substr($hex_color, 2, 2));
 $code_blue = hexdec(substr($hex_color, 4, 2));
 $color = imagecolorallocate($img, $code_red, $code_green, $code_blue); // テキストの色指定(RGB)
 $image_path = strstr(__FILE__, 'includes/generate.php', true) . "img/ogp-$post_id.png";
-
-$file_path =  __DIR__ . '/test2.log';
-$data = array('font_size' => $font_size, 'font_file_path' => $font_file_path, 'ogp_new_line_char_length' => $ogp_new_line_char_length, 'post_id' => $post_id, 'txt' => $txt, 'original_img' => $original_img, 'img_file_path' => $img_file_path, 'img_type' => $img_type, 'hex_color' => $hex_color, 'image_path' => $image_path,);
-file_put_contents($file_path, print_r($data, true));
-
 $img_result = getimagesize($img_file_path);
-
 $result = imagettfbbox( $font_size, 0, $font_file_path, $txt); //テキストを縦横中央に配置するためテキスト全体の位置情報取得
 $x0 = $result[6];
 $y0 = $result[7];

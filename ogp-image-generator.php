@@ -157,12 +157,6 @@ function savepost_ogimage($post_ID) {
   $original_image = $original_images[0];
   $url = plugin_dir_url( __FILE__ ) . 'includes/generate.php?post_id=' . $post_ID . '&font_url=' . $ogp_font_url . '&original_image=' . $original_image . '&font_size=' . $ogp_font_size . '&font_color=' . $ogp_font_color . '&new_line_num=' . $ogp_new_line_char_length;
 
-  $img_folder_path = plugin_dir_path( __FILE__ ) . 'img';
-  $generate_file_path = plugin_dir_path( __FILE__ ) . 'includes/generate.php';
-  $file_path =  __DIR__ . '/test0.log';
-  $data = array('auth_user' => $auth_user, 'auth_pw' => $auth_pw, 'img_folder_path' => $img_folder_path, 'generate_file_path' => $generate_file_path, 'ogp_font_url' => $ogp_font_url, 'ogp_font_size' => $ogp_font_size, 'ogp_font_color' => $ogp_font_color, 'ogp_new_line_char_length' => $ogp_new_line_char_length, 'original_image' => $original_image, 'url' => $url);
-  file_put_contents($file_path, print_r($data, true));
-
   $header = array(
     'Content-Type: application/x-www-form-urlencoded',
     'Authorization: Basic '.base64_encode("$auth_user:$auth_pw")
