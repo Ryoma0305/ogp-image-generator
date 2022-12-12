@@ -52,12 +52,20 @@ $file_path_to_img = $file_path . 'img/';
                     <th scope="row"><label for="inputtext">使用するフォント</label></th>
                     <td>
                         <input type="button" name="ogp_font_url_slect" value="選択" /><br>
-                        <input name="ogp_font_url" type="text" value="<?php echo $ogp_font_url ?>" style="width:60%" readonly="readonly" required/>
+                        <input name="ogp_font_url" type="text" value="<?php echo $ogp_font_url ?>" style="width:60%" readonly="readonly"/>
+                        <?php
+                        if(!$ogp_font_url){
+                            $error_txt = '<p class="error-txt">未入力です</p>';
+                        }else {
+                            $error_txt = '';
+                        }
+                        echo $error_txt;
+                         ?>
                     </td>
                 </tr>
                 <tr valign="top">
                     <th scope="row"><label for="inputtext">フォントサイズ</label></th>
-                    <td><input name="ogp_font_size" type="text" id="ogp_font_size" value="<?php  echo $ogp_font_size ?>" class="regular-text" required/></td>
+                    <td><input name="ogp_font_size" type="number" id="ogp_font_size" value="<?php  echo $ogp_font_size ?>" class="regular-text" required/></td>
                 </tr>
                 <tr valign="top">
                     <th scope="row"><label for="inputtext">フォントカラー</label></th>
@@ -65,24 +73,39 @@ $file_path_to_img = $file_path . 'img/';
                 </tr>
                 <tr valign="top">
                     <th scope="row"><label for="inputtext">改行される文字数</label></th>
-                    <td><input name="ogp_new_line_char_length" type="text" id="ogp_new_line_char_length" value="<?php  echo $ogp_new_line_char_length ?>" class="regular-text" required/></td>
+                    <td><input name="ogp_new_line_char_length" type="number" id="ogp_new_line_char_length" value="<?php  echo $ogp_new_line_char_length ?>" class="regular-text" required/></td>
                 </tr>
                 <tr valign="top">
                     <th scope="row"><label for="inputtext">テンプレート画像</label></th>
                     <td>
                         <input type="button" name="ogp_image_url_slect" value="選択" /><br>
-                        <input name="original_image" type="hidden" value="<?php echo $original_image ?>" readonly="readonly" required/>
+                        <input name="original_image" type="hidden" value="<?php echo $original_image ?>" readonly="readonly"/>
                         <div id="ogp_image_url_thumbnail" class="uploded-thumbnail">
 <?php foreach ($ogp_image_urls as $key => $url): ?>
                             <div class="box"><img src="<?php echo $url; ?>" alt="<?php echo $titles[$key]; ?>" style="height:128px;"/><p><?php echo $titles[$key]; ?></p></div>
 <?php endforeach ?>
                         </div>
+                        <?php
+                        if(!$original_image){
+                            $error_txt = '<p class="error-txt">未入力です</p>';
+                        }else {
+                            $error_txt = '';
+                        }
+                        echo $error_txt;
+                         ?>
                     </td>
                 </tr>
                 <tr valign="top">
                     <th scope="row"><label for="inputtext">画像保存場所</label></th>
                     <td>
                         <strong><?php echo $file_path_to_img; ?></strong><br>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row"><label for="inputtext">生成される画像ファイル名</label></th>
+                    <td>
+                        <strong>ogp-[投稿ID]</strong><br>
+                        <p>例：ogp-100.jpg</p>
                     </td>
                 </tr>
             </table>
@@ -184,6 +207,9 @@ $file_path_to_img = $file_path . 'img/';
     }
     .input_ogp_font_color{
         width: 40px;
+    }
+    .error-txt {
+        color: red;
     }
 </style>
 
