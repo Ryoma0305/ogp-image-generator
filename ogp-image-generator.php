@@ -3,12 +3,6 @@
 Plugin Name: OGP Image Generator
 Description: OG画像自動生成プラグイン
 Version: 1.0
-*/
-
-/*
-Plugin Name: OGP Image Generator
-Description: OG画像自動生成プラグイン
-Version: 1.0
 Author: Arimura Ryoma
 License: GPL2
 */
