@@ -148,37 +148,19 @@ function savepost_ogimage($post_ID) {
   $original_image_id =    get_option('original_image', null);
   $original_images = wp_get_attachment_image_src($original_image_id, 'full');
   $original_image = $original_images[0];
+
   $url = plugin_dir_url( __FILE__ ) . 'includes/generate.php?post_id=' . $post_ID . '&font_url=' . $ogp_font_url . '&original_image=' . $original_image . '&font_size=' . $ogp_font_size . '&font_color=' . $ogp_font_color . '&new_line_num=' . $ogp_new_line_char_length;
-
-  // $header = array(
-  //   'Content-Type: application/x-www-form-urlencoded',
-  //   'Authorization: Basic '.base64_encode("$auth_user:$auth_pw")
-  // );
-
   $args = array(
     'method' => 'POST',
     'headers' => array(
       'Authorization' => 'Basic '.base64_encode("$auth_user:$auth_pw")
     )
   );
-
-  // $options = array('http' => array(
-  //   'method' => 'POST',
-  //   'header' => implode("\r\n", $header ),
-  // ));
-
-  // $options = array('http' => array(
-  //   'method' => 'POST',
-  //   'headers' => $header,
-  // ));
-
-  // $options = stream_context_create($options);
-  // file_get_contents($url, false, $options);
   wp_remote_get($url, $args);
 
-  $file_path =  __DIR__ . '/test.log';
-  $data = array('one' => wp_remote_get($url, $args), );
-  file_put_contents($file_path, print_r($data, true));
+  // $file_path =  __DIR__ . '/test.log';
+  // $data = array('one' => wp_remote_get($url, $args), );
+  // file_put_contents($file_path, print_r($data, true));
 
 }
 add_action('save_post', 'savepost_ogimage');
