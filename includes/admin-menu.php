@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 wp_enqueue_media();
 
-if( isset($_POST['original_image']) && isset($_POST['ogp_font_url']) && isset($_POST['ogp_font_size']) && isset($_POST['original_image'])){
+if( isset($_POST['original_image']) && isset($_POST['ogp_font_url']) && isset($_POST['ogp_font_size'])){
     check_admin_referer('ogp_config');
     update_option(self::PLUGIN_FONT_URL, $_POST['ogp_font_url']);
     update_option(self::PLUGIN_FONT_SIZE, $_POST['ogp_font_size']);
@@ -52,53 +52,62 @@ $file_path_to_img = $file_path . 'img/';
                     <th scope="row"><label for="inputtext">使用するフォント</label></th>
                     <td>
                         <input type="button" name="ogp_font_url_slect" value="選択" /><br>
-                        <input name="ogp_font_url" type="text" value="<?php echo $ogp_font_url ?>" style="width:60%" readonly="readonly"/>
+                        <input name="ogp_font_url" type="text" value="<?php echo esc_html($ogp_font_url) ?>" style="width:60%" readonly="readonly"/>
                         <?php
-                        if(!$ogp_font_url){
-                            $error_txt = '<p class="error-txt">未入力です</p>';
-                        }else {
-                            $error_txt = '';
+                        if(empty($ogp_font_url)){
+                            echo '<p class="error-txt">フォントは必須項目です。</p>';
                         }
-                        echo $error_txt;
                          ?>
                     </td>
                 </tr>
                 <tr valign="top">
                     <th scope="row"><label for="inputtext">フォントサイズ</label></th>
-                    <td><input name="ogp_font_size" type="number" id="ogp_font_size" value="<?php  echo $ogp_font_size ?>" class="regular-text" required/></td>
+                    <td>
+                        <input name="ogp_font_size" type="number" id="ogp_font_size" value="<?php echo esc_html($ogp_font_size) ?>" class="regular-text"/>
+                        <?php
+                        if(empty($ogp_font_size)){
+                            echo '<p class="error-txt">フォントサイズは必須項目です。</p>';
+                        }
+                        ?>
+                    </td>
+
                 </tr>
                 <tr valign="top">
                     <th scope="row"><label for="inputtext">フォントカラー</label></th>
-                    <td><input class="input_ogp_font_color" name="ogp_font_color" type="color" id="ogp_font_color" value="<?php  echo $ogp_font_color ?>" class="regular-text" required/></td>
+                    <td><input class="input_ogp_font_color" name="ogp_font_color" type="color" id="ogp_font_color" value="<?php  echo esc_html($ogp_font_color) ?>" class="regular-text" required/></td>
                 </tr>
                 <tr valign="top">
                     <th scope="row"><label for="inputtext">改行される文字数</label></th>
-                    <td><input name="ogp_new_line_char_length" type="number" id="ogp_new_line_char_length" value="<?php  echo $ogp_new_line_char_length ?>" class="regular-text" required/></td>
+                    <td>
+                        <input name="ogp_new_line_char_length" type="number" id="ogp_new_line_char_length" value="<?php  echo esc_html($ogp_new_line_char_length) ?>" class="regular-text" required/>
+                        <?php
+                        if(empty($ogp_new_line_char_length)){
+                            echo '<p class="error-txt">改行される文字数は必須項目です。</p>';
+                        }
+                        ?>
+                    </td>
                 </tr>
                 <tr valign="top">
-                    <th scope="row"><label for="inputtext">テンプレート画像</label></th>
+                    <th scope="row"><label for="inputtext">背景画像</label></th>
                     <td>
                         <input type="button" name="ogp_image_url_slect" value="選択" /><br>
-                        <input name="original_image" type="hidden" value="<?php echo $original_image ?>" readonly="readonly"/>
+                        <input name="original_image" type="hidden" value="<?php echo esc_html($original_image) ?>" readonly="readonly"/>
                         <div id="ogp_image_url_thumbnail" class="uploded-thumbnail">
 <?php foreach ($ogp_image_urls as $key => $url): ?>
-                            <div class="box"><img src="<?php echo $url; ?>" alt="<?php echo $titles[$key]; ?>" style="height:128px;"/><p><?php echo $titles[$key]; ?></p></div>
+                            <div class="box"><img src="<?php echo esc_url($url); ?>" alt="<?php echo esc_html($titles[$key]); ?>" style="height:128px;"/><p><?php echo esc_html($titles[$key]); ?></p></div>
 <?php endforeach ?>
                         </div>
                         <?php
-                        if(!$original_image){
-                            $error_txt = '<p class="error-txt">未入力です</p>';
-                        }else {
-                            $error_txt = '';
+                        if(empty($original_image)){
+                            echo '<p class="error-txt">背景画像は必須項目です。</p>';
                         }
-                        echo $error_txt;
                          ?>
                     </td>
                 </tr>
                 <tr valign="top">
                     <th scope="row"><label for="inputtext">画像保存場所</label></th>
                     <td>
-                        <strong><?php echo $file_path_to_img; ?></strong><br>
+                        <strong><?php echo esc_url($file_path_to_img); ?></strong><br>
                     </td>
                 </tr>
                 <tr valign="top">

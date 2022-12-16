@@ -21,7 +21,7 @@ License: GPL2
 */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
-
+// define('ALLOW_UNFILTERED_UPLOADS', true);
 add_action('init', 'OgpImageGenerator::init');
 
 class OgpImageGenerator
@@ -51,6 +51,12 @@ class OgpImageGenerator
         if (is_admin() && is_user_logged_in()) {
             add_action('admin_menu',        [$this, 'set_ogp_menu']);
             add_filter('upload_mimes',      [$this, 'add_upload_mimes']);
+            add_filter( 'wp_check_filetype_and_ext', [$this, 'add_allow_upload_extension_exception'],10,5);
+            add_action('save_post', 'savepost_ogimage');
+
+            if ( current_user_can('contributor') && !current_user_can('upload_files') ){
+              add_action('admin_init', [$this,'allow_contributor_uploads']);
+            }
         }
 
         if (function_exists('register_uninstall_hook'))
@@ -87,12 +93,54 @@ class OgpImageGenerator
   // ---------------------------------------
   // アップロード時の拡張子を追加
   // ---------------------------------------
-  function add_upload_mimes($existing_mimes = array())
+
+  // function add_upload_mimes($existing_mimes = array())
+  // {
+  //     $existing_mimes['ttf'] = 'application/octet-stream';
+  //     $existing_mimes['otf'] = 'application/octet-stream';
+  //     return $existing_mimes;
+  // }
+
+  function add_upload_mimes($mimes)
   {
-      $existing_mimes['ttf'] = 'application/octet-stream';
-      $existing_mimes['otf'] = 'application/octet-stream';
-      return $existing_mimes;
+    $file_path =  __DIR__ . '/mimes.log';
+    $data = array('one' => 1);
+    file_put_contents($file_path, print_r($data, true));
+
+      $mimes['ttf'] = 'application/x-font-ttf';
+      return $mimes;
   }
+
+  function add_allow_upload_extension_exception( $data, $file, $filename,$mimes,$real_mime=null){
+    $ext = pathinfo($filename, PATHINFO_EXTENSION);
+    if($ext == 'ttf'){
+      return ['ext' => 'ttf', 'type' => 'application/x-font-ttf', 'proper_filename' => false];
+    }else {
+      return $data;
+    }
+    // $flag = false;
+    // if($flag)
+	  //   return compact( 'ext', 'type', 'proper_filename' );
+	  // else
+    //   $file_path =  __DIR__ . '/mimes2.log';
+    //   $result = array('data' => $data, 'file' => $file, 'filename' => $filename, 'mimes' => $mimes, 'real_mime' => $real_mime,);
+    //   file_put_contents($file_path, print_r($result, true));
+		//   return $data;
+  }
+
+  // ---------------------------------------
+  // 寄稿者にアップロード権限付与
+  // ---------------------------------------
+  function allow_contributor_uploads()
+  {
+      $contributor = get_role('contributor');
+      $contributor->add_cap('upload_files');
+  }
+
+  // function add_mimes($mimes) {
+  //   $mimes['ttf']  = 'font/ttf';
+  //   return $mimes;
+  // }
 
 } // end of class
 
@@ -135,36 +183,97 @@ function mb_wordwrap( $string, $width = 35, $break = PHP_EOL ) {
 }
 
 function savepost_ogimage($post_ID) {
-  if(isset($_SERVER['PHP_AUTH_USER'])){
-    $auth_user = $_SERVER['PHP_AUTH_USER'];
-    $auth_pw = $_SERVER['PHP_AUTH_PW'];
+  // if(isset($_SERVER['PHP_AUTH_USER'])){
+  //   $auth_user = $_SERVER['PHP_AUTH_USER'];
+  //   $auth_pw = $_SERVER['PHP_AUTH_PW'];
+  // }
+
+  // $ogp_font_url =     get_option('ogp_font_url', null);
+  // $ogp_font_size =     get_option('ogp_font_size', null);
+  // $ogp_font_color =     get_option('ogp_font_color', null);
+  // $ogp_font_color = str_replace('#', '',  $ogp_font_color);
+  // $ogp_new_line_char_length = get_option('ogp_new_line_char_length', null);
+  // $original_image_id =    get_option('original_image', null);
+  // $original_images = wp_get_attachment_image_src($original_image_id, 'full');
+  // $original_image = $original_images[0];
+
+  // $url = plugin_dir_url( __FILE__ ) . 'includes/generate.php?post_id=' . $post_ID . '&font_url=' . $ogp_font_url . '&original_image=' . $original_image . '&font_size=' . $ogp_font_size . '&font_color=' . $ogp_font_color . '&new_line_num=' . $ogp_new_line_char_length;
+  // $args = array(
+  //   'method' => 'POST',
+  //   'headers' => array(
+  //     'Authorization' => 'Basic '.base64_encode("$auth_user:$auth_pw")
+  //   )
+  // );
+  // wp_remote_get($url, $args);
+
+  $file_path_to_public = strstr(__FILE__, '/wp-content', true);
+  $file_path_to_wpload = $file_path_to_public . '/wp-load.php';
+  require_once($file_path_to_wpload);
+
+  $font_size = sanitize_text_field(get_option('ogp_font_size', null)); // 文字サイズ
+  $file_path = __FILE__;
+  // $font_url = sanitize_url($_GET['font_url']); // 字体
+  $font_url = sanitize_url(get_option('ogp_font_url', null)); // 字体
+  $font_start = strrpos($font_url, '/wp-content');
+  $font_end = strlen($font_url);
+  $font_file = substr($font_url, $font_start, $font_end);
+  $font_file_path = $file_path_to_public . $font_file; // フォントファイルパス
+
+  $ogp_new_line_char_length = sanitize_text_field(get_option('ogp_new_line_char_length', null)); //改行する文字数
+
+  $txt = mb_wordwrap(get_the_title($post_ID), $ogp_new_line_char_length); //　テキスト
+  $slug = get_post($post_ID)->post_name; // スラッグ
+
+  $original_img_id = get_option('original_image', null); // 背景画像URL
+  $original_img_url = wp_get_attachment_image_src($original_img_id, 'full')[0];
+  $original_img_start = strrpos($original_img_url, '/wp-content');
+  $original_img_end = strlen($original_img_url);
+  $original_img = substr($original_img_url, $original_img_start, $original_img_end);
+  $img_file_path = $file_path_to_public . $original_img; // 背景画像パス
+
+  $img_type = exif_imagetype($img_file_path);
+  if($img_type == 2){
+      $img = imagecreatefromjpeg($img_file_path);
+  }elseif($img_type == 3){
+      $img = imagecreatefrompng($img_file_path);
   }
+  $hex_color = sanitize_text_field(get_option('ogp_font_color', null));
+  $code_red = hexdec(substr($hex_color, 0, 2));
+  $code_green = hexdec(substr($hex_color, 2, 2));
+  $code_blue = hexdec(substr($hex_color, 4, 2));
+  $color = imagecolorallocate($img, $code_red, $code_green, $code_blue); // テキストの色指定(RGB)
+  $image_path = strstr(__FILE__, 'ogp-image-generator.php', true) . "img/ogp-$post_ID.png";
+  $img_result = getimagesize($img_file_path);
 
-  $ogp_font_url =     get_option('ogp_font_url', null);
-  $ogp_font_size =     get_option('ogp_font_size', null);
-  $ogp_font_color =     get_option('ogp_font_color', null);
-  $ogp_font_color = str_replace('#', '',  $ogp_font_color);
-  $ogp_new_line_char_length = get_option('ogp_new_line_char_length', null);
-  $original_image_id =    get_option('original_image', null);
-  $original_images = wp_get_attachment_image_src($original_image_id, 'full');
-  $original_image = $original_images[0];
+  // $file_path_to_log =  __DIR__ . '/test.log';
+  // $data = array('file_path_to_wpload' => $file_path_to_wpload, 'font_url' => $font_url, 'font_file' =>  $font_file, 'file_path_to_public' => $file_path_to_public, 'font_file_path' =>$font_file_path, 'original_img_url' => $original_img_url, 'original_img_start' => $original_img_start, 'original_img_end' => $original_img_end, 'original_img' => $original_img, 'img_file_path' =>$img_file_path, 'image_path' => $image_path,);
+  // file_put_contents($file_path_to_log, print_r($data, true));
 
-  $url = plugin_dir_url( __FILE__ ) . 'includes/generate.php?post_id=' . $post_ID . '&font_url=' . $ogp_font_url . '&original_image=' . $original_image . '&font_size=' . $ogp_font_size . '&font_color=' . $ogp_font_color . '&new_line_num=' . $ogp_new_line_char_length;
-  $args = array(
-    'method' => 'POST',
-    'headers' => array(
-      'Authorization' => 'Basic '.base64_encode("$auth_user:$auth_pw")
-    )
-  );
-  wp_remote_get($url, $args);
+  $result = imagettfbbox( $font_size, 0, $font_file_path, $txt); //テキストを縦横中央に配置するためテキスト全体の位置情報取得
 
-  // $file_path =  __DIR__ . '/test.log';
-  // $data = array('one' => wp_remote_get($url, $args), );
-  // file_put_contents($file_path, print_r($data, true));
+  // $file_path_to_log =  __DIR__ . '/test2.log';
+  // $data = array('font_size' => $font_size, 'font_file_path' => $font_file_path, 'txt' => $txt,);
+  // file_put_contents($file_path_to_log, print_r($data, true));
+
+  $x0 = $result[6];
+  $y0 = $result[7];
+
+  $x1 = $result[2];
+  $y1 = $result[3];
+  $width = $x1 - $x0;
+  $height = $y1 - $y0;
+  $img_width = $img_result[0];
+  $ime_height = $img_result[1];
+  $x = ceil(($img_width - $width) / 2);
+  $y = ceil(($ime_height - $height) / 2);
+
+  imagefttext($img, $font_size, 0, $x, $y, $color, $font_file_path, $txt);
+
+  header('Content-Type: image/png');
+  imagepng($img, $image_path);
+  imagedestroy($img);
 
 }
-add_action('save_post', 'savepost_ogimage');
-
 
 function ogp_plugin_uninstall() {
   delete_option('ogp_font_url');

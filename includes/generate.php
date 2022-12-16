@@ -4,20 +4,20 @@
 // }
 require_once("../../../../wp-load.php");
 
-$font_size = $_GET['font_size']; // 文字サイズ
+$font_size = sanitize_text_field($_GET['font_size']); // 文字サイズ
 $file_path = __FILE__;
 $file_path1 = strstr(__FILE__, '/wp-content', true);
-$font_url = $_GET['font_url']; // 字体
+$font_url = sanitize_url($_GET['font_url']); // 字体
 $font_start = strrpos($font_url, '/wp-content');
 $font_end = strlen($font_url);
 $font_file = substr($font_url, $font_start, $font_end);
 $font_file_path = $file_path1 . $font_file; // フォントファイルパス
-$ogp_new_line_char_length = $_GET['new_line_num']; //改行する文字数
-$post_id = $_GET['post_id']; // post_id
+$ogp_new_line_char_length = sanitize_text_field($_GET['new_line_num']); //改行する文字数
+$post_id = sanitize_text_field($_GET['post_id']); // post_id
 $txt = mb_wordwrap(get_the_title($post_id), $ogp_new_line_char_length); //　テキスト
 $slug = get_post($post_id)->post_name; // スラッグ
 
-$original_img_url = $_GET['original_image']; // 背景画像URL
+$original_img_url = sanitize_url($_GET['original_image']); // 背景画像URL
 $original_img_start = strrpos($original_img_url, '/wp-content');
 $original_img_end = strlen($original_img_url);
 $original_img = substr($original_img_url, $original_img_start, $original_img_end);
@@ -29,7 +29,7 @@ if($img_type == 2){
 }elseif($img_type == 3){
     $img = imagecreatefrompng($img_file_path);
 }
-$hex_color = $_GET['font_color'];
+$hex_color = sanitize_text_field($_GET['font_color']);
 $code_red = hexdec(substr($hex_color, 0, 2));
 $code_green = hexdec(substr($hex_color, 2, 2));
 $code_blue = hexdec(substr($hex_color, 4, 2));
