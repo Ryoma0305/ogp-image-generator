@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 wp_enqueue_media();
 
-if( isset($_POST['original_image']) && isset($_POST['ogp_font_url']) && isset($_POST['ogp_font_size']) && isset($_POST['original_image'])){
+if( isset($_POST['original_image']) && isset($_POST['ogp_font_url']) && isset($_POST['ogp_font_size'])){
     check_admin_referer('ogp_config');
     update_option(self::PLUGIN_FONT_URL, $_POST['ogp_font_url']);
     update_option(self::PLUGIN_FONT_SIZE, $_POST['ogp_font_size']);
@@ -46,70 +46,92 @@ $file = __FILE__;
 $file_path = strstr(__FILE__, 'includes', true);
 $file_path_to_img = $file_path . 'img/';
 ?>
-            <p>記事が保存されると、記事タイトルが入ったOG画像が下記画像保存先に自動で生成されます。</p>
-            <table class="form-table">
-                <tr valign="top">
-                    <th scope="row"><label for="inputtext">使用するフォント</label></th>
-                    <td>
-                        <input type="button" name="ogp_font_url_slect" value="選択" /><br>
-                        <input name="ogp_font_url" type="text" value="<?php echo $ogp_font_url ?>" style="width:60%" readonly="readonly"/>
-                        <?php
-                        if(!$ogp_font_url){
-                            $error_txt = '<p class="error-txt">未入力です</p>';
-                        }else {
-                            $error_txt = '';
-                        }
-                        echo $error_txt;
-                         ?>
-                    </td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row"><label for="inputtext">フォントサイズ</label></th>
-                    <td><input name="ogp_font_size" type="number" id="ogp_font_size" value="<?php  echo $ogp_font_size ?>" class="regular-text" required/></td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row"><label for="inputtext">フォントカラー</label></th>
-                    <td><input class="input_ogp_font_color" name="ogp_font_color" type="color" id="ogp_font_color" value="<?php  echo $ogp_font_color ?>" class="regular-text" required/></td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row"><label for="inputtext">改行される文字数</label></th>
-                    <td><input name="ogp_new_line_char_length" type="number" id="ogp_new_line_char_length" value="<?php  echo $ogp_new_line_char_length ?>" class="regular-text" required/></td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row"><label for="inputtext">テンプレート画像</label></th>
-                    <td>
-                        <input type="button" name="ogp_image_url_slect" value="選択" /><br>
-                        <input name="original_image" type="hidden" value="<?php echo $original_image ?>" readonly="readonly"/>
-                        <div id="ogp_image_url_thumbnail" class="uploded-thumbnail">
-<?php foreach ($ogp_image_urls as $key => $url): ?>
-                            <div class="box"><img src="<?php echo $url; ?>" alt="<?php echo $titles[$key]; ?>" style="height:128px;"/><p><?php echo $titles[$key]; ?></p></div>
-<?php endforeach ?>
-                        </div>
-                        <?php
-                        if(!$original_image){
-                            $error_txt = '<p class="error-txt">未入力です</p>';
-                        }else {
-                            $error_txt = '';
-                        }
-                        echo $error_txt;
-                         ?>
-                    </td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row"><label for="inputtext">画像保存場所</label></th>
-                    <td>
-                        <strong><?php echo $file_path_to_img; ?></strong><br>
-                    </td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row"><label for="inputtext">生成される画像ファイル名</label></th>
-                    <td>
-                        <strong>ogp-[投稿ID]</strong><br>
-                        <p>例：ogp-100.jpg</p>
-                    </td>
-                </tr>
-            </table>
-            <p class="submit"><input type="submit" name="Submit" class="button-primary" value="変更を保存" /></p>
+            <div class="form-table-wrapper" style="padding-bottom: 80px;">
+                <table class="form-table">
+                    <tr valign="top">
+                        <th scope="row"><label for="inputtext">Font</label></th>
+                        <td>
+                            <input type="button" name="ogp_font_url_slect" value="Upload" /><br>
+                            <input name="ogp_font_url" type="text" value="<?php echo esc_html($ogp_font_url) ?>" style="width:60%; margin-top:4px;" readonly="readonly"/>
+                            <p style="margin-top:10px;">Uploadable File Formats : ttf</p>
+                            <?php
+                            if(empty($ogp_font_url)){
+                                echo '<p class="error-txt">Required Field</p>';
+                            }
+                                ?>
+                        </td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><label for="inputtext">Font Size</label></th>
+                        <td>
+                            <input name="ogp_font_size" type="number" id="ogp_font_size" value="<?php echo esc_html($ogp_font_size) ?>" class="regular-text"/>
+                            <?php
+                            if(empty($ogp_font_size)){
+                                echo '<p class="error-txt">Required Field</p>';
+                            }
+                            ?>
+                        </td>
+
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><label for="inputtext">Font Color</label></th>
+                        <td>
+                            <input class="input_ogp_font_color" name="ogp_font_color" type="color" id="ogp_font_color" value="<?php  echo esc_html($ogp_font_color) ?>" class="regular-text"/>
+                            <?php
+                            if(empty($ogp_font_color)){
+                                echo '<p class="error-txt">Required Field</p>';
+                            }
+                            ?>
+                        </td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><label for="inputtext">Number Of Characters To Be New-lined</label></th>
+                        <td>
+                            <input name="ogp_new_line_char_length" type="number" id="ogp_new_line_char_length" value="<?php  echo esc_html($ogp_new_line_char_length) ?>" class="regular-text"/>
+                            <?php
+                            if(empty($ogp_new_line_char_length)){
+                                echo '<p class="error-txt">Required Field</p>';
+                            }
+                            ?>
+                        </td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><label for="inputtext">Background Image</label></th>
+                        <td>
+                            <input type="button" name="ogp_image_url_slect" value="Upload" /><br>
+                            <input name="original_image" type="hidden" value="<?php echo esc_html($original_image) ?>" readonly="readonly"/>
+                            <div id="ogp_image_url_thumbnail" class="uploded-thumbnail">
+                            <?php foreach ($ogp_image_urls as $key => $url): ?>
+                                                        <div class="box"><img src="<?php echo esc_url($url); ?>" alt="<?php echo esc_html($titles[$key]); ?>" style="height:128px; margin-top:4px;"/><p><?php echo esc_html($titles[$key]); ?></p></div>
+                            <?php endforeach ?>
+                            </div>
+                            <?php
+                            if(empty($original_image)){
+                                echo '<p class="error-txt">Required Field</p>';
+                            }
+                                ?>
+                        </td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><label for="inputtext">Output Destination</label></th>
+                        <td>
+                            <strong><?php echo esc_url($file_path_to_img); ?></strong>
+                            <br>
+                            <br>
+                            <span>※ When an article is saved, an image is automatically generated at the above image storage location.</span>
+                        </td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><label for="inputtext">Generated Image File Name</label></th>
+                        <td>
+                            <strong>ogp-[Post ID]</strong><br>
+                            <p>e.g.　ogp-100.jpg</p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <p class="submit"><input type="submit" name="Submit" class="button-primary" value="Save Changes" /></p>
         </form>
     </div>
 </div>
@@ -124,13 +146,13 @@ $file_path_to_img = $file_path . 'img/';
             return;
         }
         image_uploader = wp.media({
-            title: "画像を選択してください",
+            title: "Select an image",
             library: {
                 type: "image",
                 author: userSettings.uid
             },
             button: {
-                text: "画像の選択"
+                text: "Select an image"
             },
             multiple: true
         });
@@ -160,13 +182,13 @@ $file_path_to_img = $file_path . 'img/';
             return;
         }
         font_uploader = wp.media({
-            title: "フォントを選択してください",
+            title: "Select a font",
             library: {
                 search: "otf ttf",
                 author: userSettings.uid
             },
             button: {
-                text: "フォントの選択"
+                text: "Select a font"
             },
             multiple: false
         });
@@ -187,7 +209,6 @@ $file_path_to_img = $file_path . 'img/';
     .box {
         position: relative;
         display: inline-block;
-        _display: inline;
     }
     .box p {
         position: absolute;
