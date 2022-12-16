@@ -16,7 +16,78 @@ if( isset($_POST['original_image']) && isset($_POST['ogp_font_url']) && isset($_
     update_option(self::PLUGIN_FONT_COLOR, $_POST['ogp_font_color']);
     update_option(self::PLUGIN_NEWLINE_CHAR_LENGTH, $_POST['ogp_new_line_char_length']);
     update_option(self::PLUGIN_ORIGINAL_IMAGE, $_POST['original_image']);
-    }
+}
+
+if(isset($_POST['preview'])){
+        $file_path_to_public = strstr(__FILE__, '/wp-content', true);
+        $file_path_to_wpload = $file_path_to_public . '/wp-load.php';
+        require_once($file_path_to_wpload);
+
+        $font_size = sanitize_text_field(get_option('ogp_font_size', null)); // 文字サイズ
+        $file_path = __FILE__;
+
+        $font_url = sanitize_url(get_option('ogp_font_url', null)); // 字体
+        $font_start = strrpos($font_url, '/wp-content');
+        $font_end = strlen($font_url);
+        $font_file = substr($font_url, $font_start, $font_end);
+        $font_file_path = $file_path_to_public . $font_file; // フォントファイルパス
+
+        $ogp_new_line_char_length = sanitize_text_field(get_option('ogp_new_line_char_length', null)); //改行する文字数
+
+        $txt = oig_mb_wordwrap('サンプルテキストです。サンプルテキストです。サンプルテキストです。', $ogp_new_line_char_length); //　テキスト
+
+        $original_img_id = get_option('original_image', null); // 背景画像URL
+        $original_img_url = wp_get_attachment_image_src($original_img_id, 'full')[0];
+        $original_img_start = strrpos($original_img_url, '/wp-content');
+        $original_img_end = strlen($original_img_url);
+        $original_img = substr($original_img_url, $original_img_start, $original_img_end);
+        $img_file_path = $file_path_to_public . $original_img; // 背景画像パス
+
+        $img_type = exif_imagetype($img_file_path);
+        if($img_type == 2){
+            $img = imagecreatefromjpeg($img_file_path);
+        }elseif($img_type == 3){
+            $img = imagecreatefrompng($img_file_path);
+        }
+
+        $hex_color = get_option('ogp_font_color', null);
+        $code_red = hexdec(substr($hex_color, 1, 2));
+        $code_green = hexdec(substr($hex_color, 3, 2));
+        $code_blue = hexdec(substr($hex_color, 5, 2));
+        $color = imagecolorallocate($img, $code_red, $code_green, $code_blue); // テキストの色指定(RGB)
+        // $image_path = strstr(__FILE__, 'ogp-image-generator.php', true) . "img/preview/ogp-example.png";
+        $image_path = WP_PLUGIN_DIR . '/ogp-image-generator/img/preview/ogp-example.png';
+
+        $img_result = getimagesize($img_file_path);
+
+        $file_path_to_log =  __DIR__ . '/preview.log';
+        $data = array('file_path_to_wpload' => $file_path_to_wpload, 'font_url' => $font_url, 'font_file' =>  $font_file, 'file_path_to_public' => $file_path_to_public, 'font_file_path' =>$font_file_path, 'original_img_url' => $original_img_url, 'original_img_start' => $original_img_start, 'original_img_end' => $original_img_end, 'original_img' => $original_img, 'img_file_path' =>$img_file_path, 'image_path' => $image_path,);
+        file_put_contents($file_path_to_log, print_r($data, true));
+
+        $result = imagettfbbox( $font_size, 0, $font_file_path, $txt); //テキストを縦横中央に配置するためテキスト全体の位置情報取得
+
+        $file_path_to_log =  __DIR__ . '/preview2.log';
+        $data = array('hex_color' => $hex_color, 'code_red' => $code_red, 'code_green' => $code_green, 'code_blue' => $code_blue, 'color' => $color);
+        file_put_contents($file_path_to_log, print_r($data, true));
+
+        $x0 = $result[6];
+        $y0 = $result[7];
+
+        $x1 = $result[2];
+        $y1 = $result[3];
+        $width = $x1 - $x0;
+        $height = $y1 - $y0;
+        $img_width = $img_result[0];
+        $ime_height = $img_result[1];
+        $x = ceil(($img_width - $width) / 2);
+        $y = ceil(($ime_height - $height) / 2);
+
+        imagefttext($img, $font_size, 0, $x, $y, $color, $font_file_path, $txt);
+
+        header('Content-Type: image/png');
+        imagepng($img, $image_path);
+        imagedestroy($img);
+}
 ?>
 
 <div class="wrap">
@@ -45,6 +116,8 @@ foreach($ids as $id){
 $file = __FILE__;
 $file_path = strstr(__FILE__, 'includes', true);
 $file_path_to_img = $file_path . 'img/';
+
+$preview_image_path = WP_PLUGIN_URL . '/ogp-image-generator/img/preview/ogp-example.png';
 ?>
             <div class="form-table-wrapper" style="padding-bottom: 80px;">
                 <table class="form-table">
@@ -110,6 +183,8 @@ $file_path_to_img = $file_path . 'img/';
                                 echo '<p class="error-txt">Required Field</p>';
                             }
                                 ?>
+                            <input type="submit" name="preview" value="Preview" />
+                            <div class="box"><img src="<?php echo $preview_image_path; ?>" alt="" style="height:128px; margin-top:4px;"/></div>
                         </td>
                     </tr>
                     <tr valign="top">
