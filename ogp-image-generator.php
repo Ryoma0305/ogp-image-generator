@@ -79,8 +79,8 @@ class OgpImageGenerator
   function oig_set_ogp_menu()
   {
       add_menu_page(
-          'OG画像自動生成',
-          'OG画像自動生成',
+          'OGP Image Generator',
+          'OGP Image Generator',
           'manage_options',
           self::PLUGIN_MENU_SLUG,
             [$this, 'oig_show_config'],

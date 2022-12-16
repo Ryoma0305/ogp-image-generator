@@ -20,7 +20,7 @@ if( isset($_POST['original_image']) && isset($_POST['ogp_font_url']) && isset($_
 ?>
 
 <div class="wrap">
-    <div id="icon-options-general"><br /></div><h2>OPG自動生成 設定</h2>
+    <div id="icon-options-general"><br /></div><h2>OGP Image Generator Settings</h2>
         <form action="" method="post">
 <?php
 wp_nonce_field('ogp_config');
