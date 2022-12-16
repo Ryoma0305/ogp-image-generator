@@ -42,32 +42,32 @@ class OgpImageGenerator
     function __construct()
     {
 
-      $img_folder_path = plugin_dir_path( __FILE__ ) . 'img';
-      $generate_file_path = plugin_dir_path( __FILE__ ) . 'includes/generate.php';
-      chmod($img_folder_path, 0755);
-      chmod($generate_file_path, 0755);
+      $oig_img_folder_path = plugin_dir_path( __FILE__ ) . 'img';
+      $oig_generate_file_path = plugin_dir_path( __FILE__ ) . 'includes/generate.php';
+      chmod($oig_img_folder_path, 0755);
+      chmod($oig_generate_file_path, 0755);
 
         if (is_admin() && is_user_logged_in()) {
-            add_action('admin_menu',        [$this, 'set_ogp_menu']);
-            add_filter('upload_mimes',      [$this, 'add_upload_mimes']);
-            add_filter( 'wp_check_filetype_and_ext', [$this, 'add_allow_upload_extension_exception'],10,5);
-            add_action('save_post', 'savepost_ogimage');
+            add_action('admin_menu',        [$this, 'oig_set_ogp_menu']);
+            add_filter('upload_mimes',      [$this, 'oig_add_upload_mimes']);
+            add_filter( 'wp_check_filetype_and_ext', [$this, 'oig_add_allow_upload_extension_exception'],10,5);
+            add_action('save_post', 'oig_savepost_ogimage');
 
             if ( current_user_can('contributor') && !current_user_can('upload_files') ){
-              add_action('admin_init', [$this,'allow_contributor_uploads']);
+              add_action('admin_init', [$this,'oig_allow_contributor_uploads']);
             }
         }
 
         if (function_exists('register_uninstall_hook'))
         {
-            register_uninstall_hook(__FILE__, 'ogp_plugin_uninstall');
+            register_uninstall_hook(__FILE__, 'oig_plugin_uninstall');
         }
     }
 
     // ---------------------------------------
   // 設定画面
   // ---------------------------------------
-  function show_config()
+  function oig_show_config()
   {
       return include_once (__dir__.'/includes/admin-menu.php');
   }
@@ -76,41 +76,26 @@ class OgpImageGenerator
   // ---------------------------------------
   // メニュー表示
   // ---------------------------------------
-  function set_ogp_menu()
+  function oig_set_ogp_menu()
   {
       add_menu_page(
           'OG画像自動生成',
           'OG画像自動生成',
           'manage_options',
           self::PLUGIN_MENU_SLUG,
-            [$this, 'show_config'],
+            [$this, 'oig_show_config'],
           'dashicons-format-gallery',
           100
       );
   }
 
-  // ---------------------------------------
-  // アップロード時の拡張子を追加
-  // ---------------------------------------
-
-  // function add_upload_mimes($existing_mimes = array())
-  // {
-  //     $existing_mimes['ttf'] = 'application/octet-stream';
-  //     $existing_mimes['otf'] = 'application/octet-stream';
-  //     return $existing_mimes;
-  // }
-
-  function add_upload_mimes($mimes)
+  function oig_add_upload_mimes($mimes)
   {
-    $file_path =  __DIR__ . '/mimes.log';
-    $data = array('one' => 1);
-    file_put_contents($file_path, print_r($data, true));
-
       $mimes['ttf'] = 'application/x-font-ttf';
       return $mimes;
   }
 
-  function add_allow_upload_extension_exception( $data, $file, $filename,$mimes,$real_mime=null){
+  function oig_add_allow_upload_extension_exception( $data, $file, $filename,$mimes,$real_mime=null){
     $ext = pathinfo($filename, PATHINFO_EXTENSION);
     if($ext == 'ttf'){
       return ['ext' => 'ttf', 'type' => 'application/x-font-ttf', 'proper_filename' => false];
@@ -122,7 +107,7 @@ class OgpImageGenerator
   // ---------------------------------------
   // 寄稿者にアップロード権限付与
   // ---------------------------------------
-  function allow_contributor_uploads()
+  function oig_allow_contributor_uploads()
   {
       $contributor = get_role('contributor');
       $contributor->add_cap('upload_files');
@@ -131,7 +116,7 @@ class OgpImageGenerator
 } // end of class
 
 //全角・半角が混在する文字列でも文字数を指定して同じ長さで改行するための関数
-function mb_wordwrap( $string, $width = 35, $break = PHP_EOL ) {
+function oig_mb_wordwrap( $string, $width = 35, $break = PHP_EOL ) {
   $one_char_array   = mb_str_split( $string );
   $char_point_array = array_map(
     function( $char ) {
@@ -168,7 +153,7 @@ function mb_wordwrap( $string, $width = 35, $break = PHP_EOL ) {
   return implode( $break, $words_array );
 }
 
-function savepost_ogimage($post_ID) {
+function oig_savepost_ogimage($post_ID) {
 
   $file_path_to_public = strstr(__FILE__, '/wp-content', true);
   $file_path_to_wpload = $file_path_to_public . '/wp-load.php';
@@ -185,7 +170,7 @@ function savepost_ogimage($post_ID) {
 
   $ogp_new_line_char_length = sanitize_text_field(get_option('ogp_new_line_char_length', null)); //改行する文字数
 
-  $txt = mb_wordwrap(get_the_title($post_ID), $ogp_new_line_char_length); //　テキスト
+  $txt = oig_mb_wordwrap(get_the_title($post_ID), $ogp_new_line_char_length); //　テキスト
 
   $original_img_id = get_option('original_image', null); // 背景画像URL
   $original_img_url = wp_get_attachment_image_src($original_img_id, 'full')[0];
@@ -238,7 +223,7 @@ function savepost_ogimage($post_ID) {
 
 }
 
-function ogp_plugin_uninstall() {
+function oig_plugin_uninstall() {
   delete_option('ogp_font_url');
   delete_option('ogp_font_size');
   delete_option('ogp_font_color');
