@@ -7,16 +7,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
+// require_once('../ogp-image-generator.php');
+
 wp_enqueue_media();
 
 if( isset($_POST['original_image']) && isset($_POST['ogp_font_url']) && isset($_POST['ogp_font_size'])){
     check_admin_referer('ogp_config');
-    update_option(self::PLUGIN_FONT_URL, $_POST['ogp_font_url']);
-    update_option(self::PLUGIN_FONT_SIZE, $_POST['ogp_font_size']);
-    update_option(self::PLUGIN_FONT_COLOR, $_POST['ogp_font_color']);
+    update_option(self::PLUGIN_FONT_URL, sanitize_url($_POST['ogp_font_url']));
+    $options = array('options' => array('min_range' => 10, 'max_range' => 72));
+    $font_size = filter_input( INPUT_POST, 'ogp_font_size', FILTER_VALIDATE_INT, $options);
+    $font_size ? update_option(self::PLUGIN_FONT_SIZE, $font_size) : '';
+    update_option(self::PLUGIN_FONT_COLOR, sanitize_hex_color($_POST['ogp_font_color']));
     update_option(self::PLUGIN_NEWLINE_CHAR_LENGTH, $_POST['ogp_new_line_char_length']);
     update_option(self::PLUGIN_ORIGINAL_IMAGE, $_POST['original_image']);
-    }
+}
+
+if(isset($_POST['preview'])){
+    $base64_img = OgpImageGenerator::oig_generate_preview_image();
+    var_dump($base64_img);
+}
 ?>
 
 <div class="wrap">
@@ -45,6 +54,8 @@ foreach($ids as $id){
 $file = __FILE__;
 $file_path = strstr(__FILE__, 'includes', true);
 $file_path_to_img = $file_path . 'img/';
+
+$preview_image_path = WP_PLUGIN_URL . '/ogp-image-generator/img/preview/ogp-example.png';
 ?>
             <div class="form-table-wrapper" style="padding-bottom: 80px;">
                 <table class="form-table">
@@ -110,6 +121,8 @@ $file_path_to_img = $file_path . 'img/';
                                 echo '<p class="error-txt">Required Field</p>';
                             }
                                 ?>
+                            <input type="submit" name="preview" value="Preview" />
+                            <div class="box"><img src="data:image/png;base64,<?php echo $base64_img; ?>" alt="" style="height:128px; margin-top:4px;"/></div>
                         </td>
                     </tr>
                     <tr valign="top">

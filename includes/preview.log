@@ -1,0 +1,14 @@
+Array
+(
+    [file_path_to_wpload] => /Users/ryomaarimura/Local Sites/practicearimuraryomacom/app/public/wp-load.php
+    [font_url] => http://practicearimuraryomacom.local/wp-content/uploads/2022/12/NotoSansCJKjp-Bold-12.ttf
+    [font_file] => /wp-content/uploads/2022/12/NotoSansCJKjp-Bold-12.ttf
+    [file_path_to_public] => /Users/ryomaarimura/Local Sites/practicearimuraryomacom/app/public
+    [font_file_path] => /Users/ryomaarimura/Local Sites/practicearimuraryomacom/app/public/wp-content/uploads/2022/12/NotoSansCJKjp-Bold-12.ttf
+    [original_img_url] => http://practicearimuraryomacom.local/wp-content/uploads/2022/09/hagukumukohan02.jpg
+    [original_img_start] => 36
+    [original_img_end] => 83
+    [original_img] => /wp-content/uploads/2022/09/hagukumukohan02.jpg
+    [img_file_path] => /Users/ryomaarimura/Local Sites/practicearimuraryomacom/app/public/wp-content/uploads/2022/09/hagukumukohan02.jpg
+    [image_path] => /Users/ryomaarimura/Local Sites/practicearimuraryomacom/app/public/wp-content/plugins/ogp-image-generator/img/preview/ogp-example.png
+)
