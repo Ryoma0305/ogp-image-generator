@@ -9,27 +9,34 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 wp_enqueue_media();
 
-if( isset($_POST['original_image']) && isset($_POST['ogp_font_url']) && isset($_POST['ogp_font_size'])){
+$font_size_options = array('options' => array('min_range' => 10, 'max_range' => 72));
+$font_size = filter_input( INPUT_POST, 'ogp_font_size', FILTER_VALIDATE_INT, $font_size_options);
+$font_url = filter_input( INPUT_POST, 'ogp_font_url', FILTER_VALIDATE_URL);
+$ogp_font_color = sanitize_hex_color($_POST['ogp_font_color']);
+$new_line_char_length_options = array('options' => array('min_range' => 0, 'max_range' => 100));
+$ogp_new_line_char_length = filter_input( INPUT_POST, 'ogp_new_line_char_length', FILTER_VALIDATE_INT, $new_line_char_length_options);
+$original_image_id = filter_input( INPUT_POST, 'original_image', FILTER_VALIDATE_INT);
+
+if( $original_image_id && $font_url && $font_size && $ogp_font_color && $ogp_new_line_char_length ){
     check_admin_referer('ogp_config');
-    update_option(self::PLUGIN_FONT_URL, $_POST['ogp_font_url']);
-    update_option(self::PLUGIN_FONT_SIZE, $_POST['ogp_font_size']);
-    update_option(self::PLUGIN_FONT_COLOR, $_POST['ogp_font_color']);
-    update_option(self::PLUGIN_NEWLINE_CHAR_LENGTH, $_POST['ogp_new_line_char_length']);
-    update_option(self::PLUGIN_ORIGINAL_IMAGE, $_POST['original_image']);
-    }
+    update_option(self::PLUGIN_ORIGINAL_IMAGE_ID, $original_image_id);
+    update_option(self::PLUGIN_FONT_URL, $font_url);
+    update_option(self::PLUGIN_FONT_SIZE, $font_size);
+    update_option(self::PLUGIN_FONT_COLOR, $ogp_font_color);
+    update_option(self::PLUGIN_NEWLINE_CHAR_LENGTH, $ogp_new_line_char_length);
+}
 ?>
 
 <div class="wrap">
-    <div id="icon-options-general"><br /></div><h2>OGP Image Generator Settings</h2>
-        <form action="" method="post">
+    <h2>OGP Image Generator Settings</h2>
+    <form action="" method="post">
 <?php
 wp_nonce_field('ogp_config');
 $ogp_font_url =     get_option(self::PLUGIN_FONT_URL, null);
 $ogp_font_size =     get_option(self::PLUGIN_FONT_SIZE, null);
 $ogp_font_color =     get_option(self::PLUGIN_FONT_COLOR, '#000');
 $ogp_new_line_char_length = get_option(self::PLUGIN_NEWLINE_CHAR_LENGTH, null);
-
-$original_image =    get_option(self::PLUGIN_ORIGINAL_IMAGE, null);
+$original_image =    get_option(self::PLUGIN_ORIGINAL_IMAGE_ID, null);
 $ogp_image_urls = [];
 $titles = [];
 $ids = explode(',', $original_image);
@@ -52,13 +59,13 @@ $file_path_to_img = $file_path . 'img/';
                         <th scope="row"><label for="inputtext">Font</label></th>
                         <td>
                             <input type="button" name="ogp_font_url_slect" value="Upload" /><br>
-                            <input name="ogp_font_url" type="text" value="<?php echo esc_html($ogp_font_url) ?>" style="width:60%; margin-top:4px;" readonly="readonly"/>
+                            <input name="ogp_font_url" type="text" value="<?php echo esc_url($ogp_font_url) ?>" style="width:60%; margin-top:4px;" readonly="readonly"/>
                             <p style="margin-top:10px;">Uploadable File Formats : ttf</p>
                             <?php
                             if(empty($ogp_font_url)){
                                 echo '<p class="error-txt">Required Field</p>';
                             }
-                                ?>
+                            ?>
                         </td>
                     </tr>
                     <tr valign="top">
@@ -102,7 +109,7 @@ $file_path_to_img = $file_path . 'img/';
                             <input name="original_image" type="hidden" value="<?php echo esc_html($original_image) ?>" readonly="readonly"/>
                             <div id="ogp_image_url_thumbnail" class="uploded-thumbnail">
                             <?php foreach ($ogp_image_urls as $key => $url): ?>
-                                                        <div class="box"><img src="<?php echo esc_url($url); ?>" alt="<?php echo esc_html($titles[$key]); ?>" style="height:128px; margin-top:4px;"/><p><?php echo esc_html($titles[$key]); ?></p></div>
+                            <div class="box"><img src="<?php echo esc_url($url); ?>" alt="<?php echo esc_html($titles[$key]); ?>" style="height:128px; margin-top:4px;"/><p><?php echo esc_html($titles[$key]); ?></p></div>
                             <?php endforeach ?>
                             </div>
                             <?php
@@ -115,7 +122,7 @@ $file_path_to_img = $file_path . 'img/';
                     <tr valign="top">
                         <th scope="row"><label for="inputtext">Output Destination</label></th>
                         <td>
-                            <strong><?php echo esc_url($file_path_to_img); ?></strong>
+                            <strong><?php echo esc_html($file_path_to_img); ?></strong>
                             <br>
                             <br>
                             <span>※ When an article is saved, an image is automatically generated at the above image storage location.</span>
@@ -125,7 +132,7 @@ $file_path_to_img = $file_path . 'img/';
                         <th scope="row"><label for="inputtext">Generated Image File Name</label></th>
                         <td>
                             <strong>ogp-[Post ID]</strong><br>
-                            <p>e.g.　ogp-100.jpg</p>
+                            <p>e.g.　ogp-100.png</p>
                         </td>
                     </tr>
                 </table>
