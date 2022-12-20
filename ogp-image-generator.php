@@ -113,6 +113,70 @@ class OgpImageGenerator
       $contributor->add_cap('upload_files');
   }
 
+  static function oig_generate_preview_image(){
+        $file_path_to_public = strstr(__FILE__, '/wp-content', true);
+        $file_path_to_wpload = $file_path_to_public . '/wp-load.php';
+        require_once($file_path_to_wpload);
+
+        $font_size = sanitize_text_field(get_option('ogp_font_size', null)); // 文字サイズ
+        $file_path = __FILE__;
+
+        $font_url = sanitize_url(get_option('ogp_font_url', null)); // 字体
+        $font_start = strrpos($font_url, '/wp-content');
+        $font_end = strlen($font_url);
+        $font_file = substr($font_url, $font_start, $font_end);
+        $font_file_path = $file_path_to_public . $font_file; // フォントファイルパス
+
+        $ogp_new_line_char_length = sanitize_text_field(get_option('ogp_new_line_char_length', null)); //改行する文字数
+
+        $txt = oig_mb_wordwrap('サンプルテキストです。サンプルテキストです。サンプルテキストです。', $ogp_new_line_char_length); //　テキスト
+
+        $original_img_id = get_option('original_image', null); // 背景画像URL
+        $original_img_url = wp_get_attachment_image_src($original_img_id, 'full')[0];
+        $original_img_start = strrpos($original_img_url, '/wp-content');
+        $original_img_end = strlen($original_img_url);
+        $original_img = substr($original_img_url, $original_img_start, $original_img_end);
+        $img_file_path = $file_path_to_public . $original_img; // 背景画像パス
+
+        $img_type = exif_imagetype($img_file_path);
+        if($img_type == 2){
+            $img = imagecreatefromjpeg($img_file_path);
+        }elseif($img_type == 3){
+            $img = imagecreatefrompng($img_file_path);
+        }
+
+        $hex_color = get_option('ogp_font_color', null);
+        $code_red = hexdec(substr($hex_color, 1, 2));
+        $code_green = hexdec(substr($hex_color, 3, 2));
+        $code_blue = hexdec(substr($hex_color, 5, 2));
+        $color = imagecolorallocate($img, $code_red, $code_green, $code_blue); // テキストの色指定(RGB)
+        // $image_path = strstr(__FILE__, 'ogp-image-generator.php', true) . "img/preview/ogp-example.png";
+        $image_path = WP_PLUGIN_DIR . '/ogp-image-generator/img/preview/ogp-example.png';
+        $img_result = getimagesize($img_file_path);
+        $result = imagettfbbox( $font_size, 0, $font_file_path, $txt); //テキストを縦横中央に配置するためテキスト全体の位置情報取得
+
+        $x0 = $result[6];
+        $y0 = $result[7];
+
+        $x1 = $result[2];
+        $y1 = $result[3];
+        $width = $x1 - $x0;
+        $height = $y1 - $y0;
+        $img_width = $img_result[0];
+        $ime_height = $img_result[1];
+        $x = ceil(($img_width - $width) / 2);
+        $y = ceil(($ime_height - $height) / 2);
+
+        imagefttext($img, $font_size, 0, $x, $y, $color, $font_file_path, $txt);
+        $base64_img =  base64_encode($img);
+
+        $file_path_to_log =  __DIR__ . '/preview.log';
+        $data = array('output_img' => $output_img, 'img' => $img, 'base64_img' => $base64_img, 'font_size' => $font_size, 'font_file_path' => $font_file_path, 'ogp_new_line_char_length' =>  $ogp_new_line_char_length, 'txt' => $txt, 'img_file_path' =>$img_file_path, 'color' => $color,);
+        file_put_contents($file_path_to_log, print_r($data, true));
+
+        return $base64_img;
+  }
+
 } // end of class
 
 //全角・半角が混在する文字列でも文字数を指定して同じ長さで改行するための関数
