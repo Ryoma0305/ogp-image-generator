@@ -32,7 +32,7 @@ class OgpImageGenerator
     const PLUGIN_FONT_SIZE       = 'ogp_font_size';
     const PLUGIN_FONT_COLOR       = 'ogp_font_color';
     const PLUGIN_NEWLINE_CHAR_LENGTH      = 'ogp_new_line_char_length';
-    const PLUGIN_ORIGINAL_IMAGE = 'original_image';
+    const PLUGIN_ORIGINAL_IMAGE_ID = 'original_image';
 
     static function init()
     {
@@ -79,13 +79,13 @@ class OgpImageGenerator
   function oig_set_ogp_menu()
   {
       add_menu_page(
-          'OGP Image Generator',
-          'OGP Image Generator',
-          'manage_options',
-          self::PLUGIN_MENU_SLUG,
-            [$this, 'oig_show_config'],
-          'dashicons-format-gallery',
-          100
+        'OGP Image Generator',
+        'OGP Image Generator',
+        'manage_options',
+        self::PLUGIN_MENU_SLUG,
+          [$this, 'oig_show_config'],
+        'dashicons-format-gallery',
+        100
       );
   }
 
@@ -159,16 +159,16 @@ function oig_savepost_ogimage($post_ID) {
   $file_path_to_wpload = $file_path_to_public . '/wp-load.php';
   require_once($file_path_to_wpload);
 
-  $font_size = sanitize_text_field(get_option('ogp_font_size', null)); // 文字サイズ
+  $font_size = get_option('ogp_font_size', null); // 文字サイズ
   $file_path = __FILE__;
 
-  $font_url = sanitize_url(get_option('ogp_font_url', null)); // 字体
+  $font_url = get_option('ogp_font_url', null); // 字体
   $font_start = strrpos($font_url, '/wp-content');
   $font_end = strlen($font_url);
   $font_file = substr($font_url, $font_start, $font_end);
   $font_file_path = $file_path_to_public . $font_file; // フォントファイルパス
 
-  $ogp_new_line_char_length = sanitize_text_field(get_option('ogp_new_line_char_length', null)); //改行する文字数
+  $ogp_new_line_char_length = get_option('ogp_new_line_char_length', null); //改行する文字数
 
   $txt = oig_mb_wordwrap(get_the_title($post_ID), $ogp_new_line_char_length); //　テキスト
 
@@ -182,15 +182,16 @@ function oig_savepost_ogimage($post_ID) {
   $img_type = exif_imagetype($img_file_path);
   if($img_type == 2){
       $img = imagecreatefromjpeg($img_file_path);
+      $image_path = strstr(__FILE__, 'ogp-image-generator.php', true) . "img/ogp-$post_ID.jpg";
   }elseif($img_type == 3){
       $img = imagecreatefrompng($img_file_path);
+      $image_path = strstr(__FILE__, 'ogp-image-generator.php', true) . "img/ogp-$post_ID.png";
   }
   $hex_color = get_option('ogp_font_color', null);
   $code_red = hexdec(substr($hex_color, 1, 2));
   $code_green = hexdec(substr($hex_color, 3, 2));
   $code_blue = hexdec(substr($hex_color, 5, 2));
   $color = imagecolorallocate($img, $code_red, $code_green, $code_blue); // テキストの色指定(RGB)
-  $image_path = strstr(__FILE__, 'ogp-image-generator.php', true) . "img/ogp-$post_ID.png";
   $img_result = getimagesize($img_file_path);
 
   // $file_path_to_log =  __DIR__ . '/test.log';
