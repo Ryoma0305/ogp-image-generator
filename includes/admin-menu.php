@@ -20,7 +20,7 @@ $preview_sample_text = filter_input( INPUT_POST, 'preview_sample_text', FILTER_S
 
 if( $original_image_id && $font_url && $font_size && $ogp_font_color && $ogp_new_line_char_length ){
     check_admin_referer('ogp_config');
-    $update_preview_image_url = WP_PLUGIN_URL . '/ogp-image-generator/img/preview/ogp-example.png' . '?' . date('YmdHis');
+    $update_preview_image_url = WP_PLUGIN_URL . '/ogp-image-generator/img/preview/ogp-example.jpg' . '?' . date('YmdHis');
 
     update_option(self::PLUGIN_ORIGINAL_IMAGE_ID, $original_image_id);
     update_option(self::PLUGIN_FONT_URL, $font_url);

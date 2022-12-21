@@ -153,7 +153,7 @@ class OgpImageGenerator
     $code_green = hexdec(substr($hex_color, 3, 2));
     $code_blue = hexdec(substr($hex_color, 5, 2));
     $color = imagecolorallocate($img, $code_red, $code_green, $code_blue); // テキストの色指定(RGB)
-    $image_path = WP_PLUGIN_DIR . '/ogp-image-generator/img/preview/ogp-example.png';
+    $image_path = WP_PLUGIN_DIR . '/ogp-image-generator/img/preview/ogp-example.jpg';
     $img_result = getimagesize($img_file_path);
     $result = imagettfbbox( $font_size, 0, $font_file_path, $txt); //テキストを縦横中央に配置するためテキスト全体の位置情報取得
 
@@ -248,11 +248,11 @@ function oig_savepost_ogimage($post_ID) {
   $img_type = exif_imagetype($img_file_path);
   if($img_type == 2){
       $img = imagecreatefromjpeg($img_file_path);
-      $image_path = strstr(__FILE__, 'ogp-image-generator.php', true) . "img/ogp-$post_ID.jpg";
   }elseif($img_type == 3){
       $img = imagecreatefrompng($img_file_path);
-      $image_path = strstr(__FILE__, 'ogp-image-generator.php', true) . "img/ogp-$post_ID.png";
   }
+  $image_path = strstr(__FILE__, 'ogp-image-generator.php', true) . "img/ogp-$post_ID.jpg";
+
   $hex_color = get_option('ogp_font_color', null);
   $code_red = hexdec(substr($hex_color, 1, 2));
   $code_green = hexdec(substr($hex_color, 3, 2));
