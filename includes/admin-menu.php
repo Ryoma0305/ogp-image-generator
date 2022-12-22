@@ -247,6 +247,7 @@ $file_path_to_img = $file_path . 'img/';
     }
     .error-txt {
         color: red;
+        font-size: 10px;
     }
 
     #footer-thankyou,

@@ -116,30 +116,25 @@ class OgpImageGenerator
   }
 
   static function oig_generate_preview_image(){
-    $file_path_to_public = strstr(__FILE__, '/wp-content', true);
-    $file_path_to_wpload = $file_path_to_public . '/wp-load.php';
-    require_once($file_path_to_wpload);
+    $upload_dir = wp_upload_dir()['basedir'];
 
     $font_size = sanitize_text_field(get_option('ogp_font_size', null)); // 文字サイズ
     $file_path = __FILE__;
 
     $font_url = sanitize_url(get_option('ogp_font_url', null)); // 字体
-    $font_start = strrpos($font_url, '/wp-content');
-    $font_end = strlen($font_url);
-    $font_file = substr($font_url, $font_start, $font_end);
-    $font_file_path = $file_path_to_public . $font_file; // フォントファイルパス
+    $font_file = substr($font_url, mb_strrpos($font_url, 'uploads/') + 7, mb_strlen($font_url));
+    $font_file_path = $upload_dir . $font_file; // フォントファイルパス
 
     $ogp_new_line_char_length = sanitize_text_field(get_option('ogp_new_line_char_length', null)); //改行する文字数
 
     $default_text = 'サンプルテキストです。サンプルテキストです。サンプルテキストです。';
     $txt = oig_mb_wordwrap(get_option('preview_sample_text', $default_text), $ogp_new_line_char_length); //　テキスト
 
+
     $original_img_id = get_option('original_image', null); // 背景画像URL
     $original_img_url = wp_get_attachment_image_src($original_img_id, 'full')[0];
-    $original_img_start = strrpos($original_img_url, '/wp-content');
-    $original_img_end = strlen($original_img_url);
-    $original_img = substr($original_img_url, $original_img_start, $original_img_end);
-    $img_file_path = $file_path_to_public . $original_img; // 背景画像パス
+    $original_img = substr($original_img_url, mb_strrpos($original_img_url, 'uploads/') + 7, mb_strlen($original_img_url));
+    $img_file_path = $upload_dir . $original_img; // 背景画像パス
 
     $img_type = exif_imagetype($img_file_path);
     if($img_type == 2){
@@ -169,15 +164,11 @@ class OgpImageGenerator
     $x = ceil(($img_width - $width) / 2);
     $y = ceil(($ime_height - $height) / 2);
 
-
     imagefttext($img, $font_size, 0, $x, $y, $color, $font_file_path, $txt);
 
     header('Content-Type: image/png');
     imagepng($img, $image_path);
     imagedestroy($img);
-
-    // $base64_img =  base64_encode($img);
-    // return $base64_img;
   }
 } // end of class
 
@@ -220,19 +211,14 @@ function oig_mb_wordwrap( $string, $width = 35, $break = PHP_EOL ) {
 }
 
 function oig_savepost_ogimage($post_ID) {
-
-  $file_path_to_public = strstr(__FILE__, '/wp-content', true);
-  $file_path_to_wpload = $file_path_to_public . '/wp-load.php';
-  require_once($file_path_to_wpload);
+  $upload_dir = wp_upload_dir()['basedir'];
 
   $font_size = get_option('ogp_font_size', null); // 文字サイズ
   $file_path = __FILE__;
 
   $font_url = get_option('ogp_font_url', null); // 字体
-  $font_start = strrpos($font_url, '/wp-content');
-  $font_end = strlen($font_url);
-  $font_file = substr($font_url, $font_start, $font_end);
-  $font_file_path = $file_path_to_public . $font_file; // フォントファイルパス
+  $font_file = substr($font_url, mb_strrpos($font_url, 'uploads/') + 7, mb_strlen($font_url));
+  $font_file_path = $upload_dir . $font_file; // フォントファイルパス
 
   $ogp_new_line_char_length = get_option('ogp_new_line_char_length', null); //改行する文字数
 
@@ -240,10 +226,8 @@ function oig_savepost_ogimage($post_ID) {
 
   $original_img_id = get_option('original_image', null); // 背景画像URL
   $original_img_url = wp_get_attachment_image_src($original_img_id, 'full')[0];
-  $original_img_start = strrpos($original_img_url, '/wp-content');
-  $original_img_end = strlen($original_img_url);
-  $original_img = substr($original_img_url, $original_img_start, $original_img_end);
-  $img_file_path = $file_path_to_public . $original_img; // 背景画像パス
+  $original_img = substr($original_img_url, mb_strrpos($original_img_url, 'uploads/') + 7, mb_strlen($original_img_url));
+  $img_file_path = $upload_dir . $original_img; // 背景画像パス
 
   $img_type = exif_imagetype($img_file_path);
   if($img_type == 2){
