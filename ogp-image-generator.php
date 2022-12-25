@@ -148,7 +148,9 @@ class OgpImageGenerator
     $code_green = hexdec(substr($hex_color, 3, 2));
     $code_blue = hexdec(substr($hex_color, 5, 2));
     $color = imagecolorallocate($img, $code_red, $code_green, $code_blue); // テキストの色指定(RGB)
-    $image_path = WP_PLUGIN_DIR . '/ogp-image-generator/img/preview/ogp-example.jpg';
+
+    $image_path = plugin_dir_path(__FILE__) . 'img/preview/ogp-example.jpg';
+
     $img_result = getimagesize($img_file_path);
     $result = imagettfbbox( $font_size, 0, $font_file_path, $txt); //テキストを縦横中央に配置するためテキスト全体の位置情報取得
 
